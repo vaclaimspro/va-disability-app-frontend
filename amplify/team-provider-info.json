@@ -1,0 +1,35 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-vadisabilityapp2-dev-2ae7a-authRole",
+      "UnauthRoleArn": "arn:aws:iam::849965492031:role/amplify-vadisabilityapp2-dev-2ae7a-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::849965492031:role/amplify-vadisabilityapp2-dev-2ae7a-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-vadisabilityapp2-dev-2ae7a-deployment",
+      "UnauthRoleName": "amplify-vadisabilityapp2-dev-2ae7a-unauthRole",
+      "StackName": "amplify-vadisabilityapp2-dev-2ae7a",
+      "StackId": "arn:aws:cloudformation:us-east-1:849965492031:stack/amplify-vadisabilityapp2-dev-2ae7a/8641f8f0-76a4-11f0-a34c-0afff3794177",
+      "AmplifyAppId": "d3txunyjio47jm",
+      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-vadisabilityapp2-dev-2ae7a-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
+    },
+    "categories": {
+      "storage": {
+        "appfilestorage": {}
+      },
+      "function": {
+        "vadisabilityapp20bfae195": {
+          "deploymentBucketName": "amplify-vadisabilityapp2-dev-2ae7a-deployment",
+          "s3Key": "amplify-builds/vadisabilityapp20bfae195-454367657a725544517a-build.zip",
+          "stripeSecretKey": "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"
+        }
+      },
+      "auth": {
+        "vadisabilityapp20689be93": {}
+      },
+      "api": {
+        "vadisabilityapp2": {},
+        "StripeApi": {}
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "paths": {
+    "/stripe": {
+      "name": "/stripe",
+      "lambdaFunction": "vadisabilityapp20bfae195",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "create",
+          "read"
+        ]
+      }
+    }
+  }
+}

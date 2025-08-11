@@ -1,0 +1,14 @@
+{
+  "resourceName": "appfilestorage",
+  "policyUUID": "f5607348",
+  "bucketName": "vaclaimspro-files-dev-5126",
+  "storageAccess": "authAndGuest",
+  "guestAccess": [
+    "READ"
+  ],
+  "authAccess": [
+    "CREATE_AND_UPDATE"
+  ],
+  "triggerFunction": "NONE",
+  "groupAccess": {}
+}
