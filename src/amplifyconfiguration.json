@@ -1,0 +1,39 @@
+{
+  "aws_project_region": "us-east-1",
+  "aws_cognito_identity_pool_id": "us-east-1:dad1fd14-457f-444b-b9de-1569a24f787a",
+  "aws_cognito_region": "us-east-1",
+  "aws_user_pools_id": "us-east-1_CtweFUZda",
+  "aws_user_pools_web_client_id": "65kkm2bf8la0r80l8klblevuah",
+  "oauth": {},
+  "aws_cognito_username_attributes": [
+    "EMAIL"
+  ],
+  "aws_cognito_social_providers": [],
+  "aws_cognito_signup_attributes": [
+    "EMAIL"
+  ],
+  "aws_cognito_mfa_configuration": "OFF",
+  "aws_cognito_mfa_types": [
+    "SMS"
+  ],
+  "aws_cognito_password_protection_settings": {
+    "passwordPolicyMinLength": 8,
+    "passwordPolicyCharacters": []
+  },
+  "aws_cognito_verification_mechanisms": [
+    "EMAIL"
+  ],
+  "aws_appsync_graphqlEndpoint": "https://eliou5xha5hitpxhxapxpjyqsa.appsync-api.us-east-1.amazonaws.com/graphql",
+  "aws_appsync_region": "us-east-1",
+  "aws_appsync_authenticationType": "AMAZON_COGNITO_USER_POOLS",
+  "aws_appsync_apiKey": "da2-n5xxmg4f5bhpjljzxlvqyfrad4",
+  "aws_cloud_logic_custom": [
+    {
+      "name": "StripeApi",
+      "endpoint": "https://nzwfjpy3o2.execute-api.us-east-1.amazonaws.com/dev",
+      "region": "us-east-1"
+    }
+  ],
+  "aws_user_files_s3_bucket": "vapp12d046cd9ce3e4622bc40f22bc76c58522d248-dev",
+  "aws_user_files_s3_bucket_region": "us-east-1"
+}
