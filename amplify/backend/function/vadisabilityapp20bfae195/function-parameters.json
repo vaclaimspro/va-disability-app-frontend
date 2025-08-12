@@ -1,14 +1,20 @@
 {
   "lambdaLayers": [],
-  "permissions": {},
+  "permissions": {
+    "api": {
+      "vapp1": [
+        "Query"
+      ]
+    }
+  },
   "environmentVariableList": [
     {
-      "cloudFormationParameterName": "stripeSecretKey",
-      "environmentVariableName": "STRIPE_SECRET_KEY"
+      "cloudFormationParameterName": "stripeSecretKeySsmName",
+      "environmentVariableName": "STRIPE_SECRET_KEY_SSM_NAME"
     },
     {
-      "cloudFormationParameterName": "stripeSecretKey",
-      "environmentVariableName": "STRIPE_SECRET_KEY"
+      "cloudFormationParameterName": "userProfileTableName",
+      "environmentVariableName": "USER_PROFILE_TABLE_NAME"
     }
   ]
 }

@@ -14,14 +14,14 @@
       "providerPlugin": "awscloudformation",
       "service": "API Gateway"
     },
-    "vadisabilityapp2": {
+    "vapp1": {
       "dependsOn": [
         {
           "attributes": [
             "UserPoolId"
           ],
           "category": "auth",
-          "resourceName": "vadisabilityapp20689be93"
+          "resourceName": "vapp1da4e146a"
         }
       ],
       "output": {
@@ -29,7 +29,7 @@
           "additionalAuthenticationProviders": [
             {
               "apiKeyConfig": {
-                "apiKeyExpirationDate": "2025-08-18T16:39:00.337Z",
+                "apiKeyExpirationDate": "2025-08-19T17:31:21.247Z",
                 "apiKeyExpirationDays": 7,
                 "description": ""
               },
@@ -39,7 +39,7 @@
           "defaultAuthentication": {
             "authenticationType": "AMAZON_COGNITO_USER_POOLS",
             "userPoolConfig": {
-              "userPoolId": "authvadisabilityapp20689be93"
+              "userPoolId": "authvapp1da4e146a"
             }
           }
         }
@@ -49,7 +49,7 @@
     }
   },
   "auth": {
-    "vadisabilityapp20689be93": {
+    "vapp1da4e146a": {
       "customAuth": false,
       "dependsOn": [],
       "frontendAuthConfig": {
@@ -79,7 +79,17 @@
   "function": {
     "vadisabilityapp20bfae195": {
       "build": true,
-      "dependsOn": [],
+      "dependsOn": [
+        {
+          "attributes": [
+            "GraphQLAPIIdOutput",
+            "GraphQLAPIEndpointOutput",
+            "GraphQLAPIKeyOutput"
+          ],
+          "category": "api",
+          "resourceName": "vapp1"
+        }
+      ],
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     }
@@ -101,7 +111,15 @@
         }
       ]
     },
-    "AMPLIFY_function_vadisabilityapp20bfae195_stripeSecretKey": {
+    "AMPLIFY_function_vadisabilityapp20bfae195_stripeSecretKeySsmName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "vadisabilityapp20bfae195"
+        }
+      ]
+    },
+    "AMPLIFY_function_vadisabilityapp20bfae195_userProfileTableName": {
       "usedBy": [
         {
           "category": "function",

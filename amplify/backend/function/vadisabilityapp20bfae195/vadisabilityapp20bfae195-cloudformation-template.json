@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "{\"createdOn\":\"Mac\",\"createdBy\":\"Amplify\",\"createdWith\":\"14.0.0\",\"stackType\":\"function-Lambda\",\"metadata\":{\"whyContinueWithGen1\":\"Prefer not to answer\"}}",
+  "Description": "{\"createdOn\":\"Mac\",\"createdBy\":\"Amplify\",\"createdWith\":\"14.0.0\",\"stackType\":\"function-Lambda\",\"metadata\":{\"whyContinueWithGen1\":\"I am a current Gen 1 user\"}}",
   "Parameters": {
     "CloudWatchRule": {
       "Type": "String",
@@ -16,7 +16,22 @@
     "s3Key": {
       "Type": "String"
     },
-    "stripeSecretKey": {
+    "apivapp1GraphQLAPIIdOutput": {
+      "Type": "String",
+      "Default": "apivapp1GraphQLAPIIdOutput"
+    },
+    "apivapp1GraphQLAPIEndpointOutput": {
+      "Type": "String",
+      "Default": "apivapp1GraphQLAPIEndpointOutput"
+    },
+    "apivapp1GraphQLAPIKeyOutput": {
+      "Type": "String",
+      "Default": "apivapp1GraphQLAPIKeyOutput"
+    },
+    "stripeSecretKeySsmName": {
+      "Type": "String"
+    },
+    "userProfileTableName": {
       "Type": "String"
     }
   },
@@ -73,8 +88,20 @@
             "REGION": {
               "Ref": "AWS::Region"
             },
-            "STRIPE_SECRET_KEY": {
-              "Ref": "stripeSecretKey"
+            "API_VAPP1_GRAPHQLAPIIDOUTPUT": {
+              "Ref": "apivapp1GraphQLAPIIdOutput"
+            },
+            "API_VAPP1_GRAPHQLAPIENDPOINTOUTPUT": {
+              "Ref": "apivapp1GraphQLAPIEndpointOutput"
+            },
+            "API_VAPP1_GRAPHQLAPIKEYOUTPUT": {
+              "Ref": "apivapp1GraphQLAPIKeyOutput"
+            },
+            "STRIPE_SECRET_KEY_SSM_NAME": {
+              "Ref": "stripeSecretKeySsmName"
+            },
+            "USER_PROFILE_TABLE_NAME": {
+              "Ref": "userProfileTableName"
             }
           }
         },
@@ -95,12 +122,12 @@
         "RoleName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "vadisabilityapp2LambdaRoleadc1cfb2",
+            "vapp1LambdaRoleecca3da9",
             {
               "Fn::Join": [
                 "",
                 [
-                  "vadisabilityapp2LambdaRoleadc1cfb2",
+                  "vapp1LambdaRoleecca3da9",
                   "-",
                   {
                     "Ref": "env"
@@ -166,6 +193,53 @@
                   }
                 ]
               }
+            }
+          ]
+        }
+      }
+    },
+    "AmplifyResourcesPolicy": {
+      "DependsOn": [
+        "LambdaExecutionRole"
+      ],
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "amplify-lambda-execution-policy",
+        "Roles": [
+          {
+            "Ref": "LambdaExecutionRole"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "appsync:GraphQL"
+              ],
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:appsync:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":apis/",
+                      {
+                        "Ref": "apivapp1GraphQLAPIIdOutput"
+                      },
+                      "/types/Query/*"
+                    ]
+                  ]
+                }
+              ]
             }
           ]
         }

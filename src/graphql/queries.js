@@ -37,6 +37,38 @@ export const listTodos = /* GraphQL */ `
         __typename
       }
       nextToken
+      startedAt
+      __typename
+    }
+  }
+`;
+export const syncTodos = /* GraphQL */ `
+  query SyncTodos(
+    $filter: ModelTodoFilterInput
+    $limit: Int
+    $nextToken: String
+    $lastSync: AWSTimestamp
+  ) {
+    syncTodos(
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      lastSync: $lastSync
+    ) {
+      items {
+        id
+        name
+        description
+        owner
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+        __typename
+      }
+      nextToken
+      startedAt
       __typename
     }
   }
@@ -89,6 +121,42 @@ export const listUserSubscriptions = /* GraphQL */ `
         __typename
       }
       nextToken
+      startedAt
+      __typename
+    }
+  }
+`;
+export const syncUserSubscriptions = /* GraphQL */ `
+  query SyncUserSubscriptions(
+    $filter: ModelUserSubscriptionFilterInput
+    $limit: Int
+    $nextToken: String
+    $lastSync: AWSTimestamp
+  ) {
+    syncUserSubscriptions(
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      lastSync: $lastSync
+    ) {
+      items {
+        id
+        userId
+        status
+        startDate
+        endDate
+        planName
+        price
+        createdAt
+        updatedAt
+        owner
+        _version
+        _deleted
+        _lastChangedAt
+        __typename
+      }
+      nextToken
+      startedAt
       __typename
     }
   }
@@ -109,9 +177,6 @@ export const getUserProfile = /* GraphQL */ `
       owner
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
       disabilities
       dependents
       serviceDates
@@ -123,6 +188,9 @@ export const getUserProfile = /* GraphQL */ `
       presumptiveSymptoms
       savedDocuments
       sessionInfo
+      _version
+      _deleted
+      _lastChangedAt
       __typename
     }
   }
@@ -148,9 +216,6 @@ export const listUserProfiles = /* GraphQL */ `
         owner
         createdAt
         updatedAt
-        _version
-        _deleted
-        _lastChangedAt
         disabilities
         dependents
         serviceDates
@@ -162,9 +227,62 @@ export const listUserProfiles = /* GraphQL */ `
         presumptiveSymptoms
         savedDocuments
         sessionInfo
+        _version
+        _deleted
+        _lastChangedAt
         __typename
       }
       nextToken
+      startedAt
+      __typename
+    }
+  }
+`;
+export const syncUserProfiles = /* GraphQL */ `
+  query SyncUserProfiles(
+    $filter: ModelUserProfileFilterInput
+    $limit: Int
+    $nextToken: String
+    $lastSync: AWSTimestamp
+  ) {
+    syncUserProfiles(
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      lastSync: $lastSync
+    ) {
+      items {
+        id
+        username
+        email
+        fullName
+        dateOfBirth
+        phoneNumber
+        address
+        membershipStatus
+        stripeCustomerId
+        stripeSubscriptionId
+        owner
+        createdAt
+        updatedAt
+        disabilities
+        dependents
+        serviceDates
+        strategyData
+        claimPackage
+        appointments
+        todos
+        symptomLogs
+        presumptiveSymptoms
+        savedDocuments
+        sessionInfo
+        _version
+        _deleted
+        _lastChangedAt
+        __typename
+      }
+      nextToken
+      startedAt
       __typename
     }
   }
@@ -217,6 +335,42 @@ export const listDisabilityApplications = /* GraphQL */ `
         __typename
       }
       nextToken
+      startedAt
+      __typename
+    }
+  }
+`;
+export const syncDisabilityApplications = /* GraphQL */ `
+  query SyncDisabilityApplications(
+    $filter: ModelDisabilityApplicationFilterInput
+    $limit: Int
+    $nextToken: String
+    $lastSync: AWSTimestamp
+  ) {
+    syncDisabilityApplications(
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      lastSync: $lastSync
+    ) {
+      items {
+        id
+        applicantID
+        applicationStatus
+        submissionDate
+        disabilityType
+        description
+        notes
+        createdAt
+        updatedAt
+        owner
+        _version
+        _deleted
+        _lastChangedAt
+        __typename
+      }
+      nextToken
+      startedAt
       __typename
     }
   }
@@ -257,6 +411,38 @@ export const listPublicFAQS = /* GraphQL */ `
         __typename
       }
       nextToken
+      startedAt
+      __typename
+    }
+  }
+`;
+export const syncPublicFAQS = /* GraphQL */ `
+  query SyncPublicFAQS(
+    $filter: ModelPublicFAQFilterInput
+    $limit: Int
+    $nextToken: String
+    $lastSync: AWSTimestamp
+  ) {
+    syncPublicFAQS(
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      lastSync: $lastSync
+    ) {
+      items {
+        id
+        question
+        answer
+        category
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+        __typename
+      }
+      nextToken
+      startedAt
       __typename
     }
   }

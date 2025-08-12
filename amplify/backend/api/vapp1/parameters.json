@@ -1,12 +1,11 @@
 {
-  "AppSyncApiName": "vadisabilityapp2",
+  "AppSyncApiName": "vapp1",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
   "DynamoDBEnableServerSideEncryption": false,
   "AuthCognitoUserPoolId": {
     "Fn::GetAtt": [
-      "authvadisabilityapp20689be93",
+      "authvapp1da4e146a",
       "Outputs.UserPoolId"
     ]
-  },
-  "AuthModeLastUpdated": "2025-08-11T16:31:06.829Z"
+  }
 }

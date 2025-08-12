@@ -146,9 +146,6 @@ export const createUserProfile = /* GraphQL */ `
       owner
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
       disabilities
       dependents
       serviceDates
@@ -160,6 +157,9 @@ export const createUserProfile = /* GraphQL */ `
       presumptiveSymptoms
       savedDocuments
       sessionInfo
+      _version
+      _deleted
+      _lastChangedAt
       __typename
     }
   }
@@ -183,9 +183,6 @@ export const updateUserProfile = /* GraphQL */ `
       owner
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
       disabilities
       dependents
       serviceDates
@@ -197,6 +194,9 @@ export const updateUserProfile = /* GraphQL */ `
       presumptiveSymptoms
       savedDocuments
       sessionInfo
+      _version
+      _deleted
+      _lastChangedAt
       __typename
     }
   }
@@ -220,9 +220,6 @@ export const deleteUserProfile = /* GraphQL */ `
       owner
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
       disabilities
       dependents
       serviceDates
@@ -234,6 +231,9 @@ export const deleteUserProfile = /* GraphQL */ `
       presumptiveSymptoms
       savedDocuments
       sessionInfo
+      _version
+      _deleted
+      _lastChangedAt
       __typename
     }
   }

@@ -1,20 +1,24 @@
 {
   "version": 1,
   "serviceConfiguration": {
-    "apiName": "vadisabilityapp2",
+    "apiName": "vapp1",
     "serviceName": "AppSync",
     "defaultAuthType": {
       "mode": "AMAZON_COGNITO_USER_POOLS",
-      "cognitoUserPoolId": "authvadisabilityapp20689be93"
+      "cognitoUserPoolId": "authvapp1da4e146a"
     },
     "additionalAuthTypes": [
       {
         "mode": "API_KEY",
         "expirationTime": 7,
-        "apiKeyExpirationDate": "2025-08-18T16:39:00.337Z",
+        "apiKeyExpirationDate": "2025-08-19T17:31:21.247Z",
         "keyDescription": ""
       }
     ],
-    "conflictResolution": {}
+    "conflictResolution": {
+      "defaultResolutionStrategy": {
+        "type": "OPTIMISTIC_CONCURRENCY"
+      }
+    }
   }
 }

@@ -11,9 +11,7 @@ type Todo @model @auth(rules: [
   owner: String # This field stores the Cognito username or sub
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
-  _version: Int!
-  _deleted: Boolean
-  _lastChangedAt: AWSTimestamp!
+  # DataStore automatically adds _version, _deleted, _lastChangedAt. Do NOT add manually.
 }
 
 # --- UserSubscription Model ---
@@ -30,9 +28,7 @@ type UserSubscription @model @auth(rules: [
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
   owner: String # Stores the Cognito username or sub
-  _version: Int!
-  _deleted: Boolean
-  _lastChangedAt: AWSTimestamp!
+  # DataStore automatically adds _version, _deleted, _lastChangedAt. Do NOT add manually.
 }
 
 # --- UserProfile Model ---
@@ -52,9 +48,7 @@ type UserProfile @model @auth(rules: [
   owner: String # Stores the Cognito username or sub
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
-  _version: Int!
-  _deleted: Boolean
-  _lastChangedAt: AWSTimestamp!
+  # DataStore automatically adds _version, _deleted, _lastChangedAt. Do NOT add manually.
 
   disabilities: AWSJSON
   dependents: AWSJSON
@@ -83,9 +77,7 @@ type DisabilityApplication @model @auth(rules: [
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
   owner: String # Stores the Cognito username or sub
-  _version: Int!
-  _deleted: Boolean
-  _lastChangedAt: AWSTimestamp!
+  # DataStore automatically adds _version, _deleted, _lastChangedAt. Do NOT add manually.
 }
 
 # --- PublicFAQ Model ---
@@ -98,7 +90,5 @@ type PublicFAQ @model @auth(rules: [
   category: String
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
-  _version: Int!
-  _deleted: Boolean
-  _lastChangedAt: AWSTimestamp!
+  # DataStore automatically adds _version, _deleted, _lastChangedAt. Do NOT add manually.
 }

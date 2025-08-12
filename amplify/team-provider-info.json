@@ -1,34 +1,35 @@
 {
   "dev": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-vadisabilityapp2-dev-2ae7a-authRole",
-      "UnauthRoleArn": "arn:aws:iam::849965492031:role/amplify-vadisabilityapp2-dev-2ae7a-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::849965492031:role/amplify-vadisabilityapp2-dev-2ae7a-authRole",
+      "AuthRoleName": "amplify-vapp1-dev-2d248-authRole",
+      "UnauthRoleArn": "arn:aws:iam::849965492031:role/amplify-vapp1-dev-2d248-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::849965492031:role/amplify-vapp1-dev-2d248-authRole",
       "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-vadisabilityapp2-dev-2ae7a-deployment",
-      "UnauthRoleName": "amplify-vadisabilityapp2-dev-2ae7a-unauthRole",
-      "StackName": "amplify-vadisabilityapp2-dev-2ae7a",
-      "StackId": "arn:aws:cloudformation:us-east-1:849965492031:stack/amplify-vadisabilityapp2-dev-2ae7a/8641f8f0-76a4-11f0-a34c-0afff3794177",
-      "AmplifyAppId": "d3txunyjio47jm",
-      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-vadisabilityapp2-dev-2ae7a-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
+      "DeploymentBucketName": "amplify-vapp1-dev-2d248-deployment",
+      "UnauthRoleName": "amplify-vapp1-dev-2d248-unauthRole",
+      "StackName": "amplify-vapp1-dev-2d248",
+      "StackId": "arn:aws:cloudformation:us-east-1:849965492031:stack/amplify-vapp1-dev-2d248/dad91d60-77a0-11f0-a4a0-12e590189bc9",
+      "AmplifyAppId": "d1lc2tgcgxpuf5",
+      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-vapp1-dev-2d248-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
     },
     "categories": {
-      "storage": {
-        "appfilestorage": {}
+      "auth": {
+        "vapp1da4e146a": {}
       },
       "function": {
         "vadisabilityapp20bfae195": {
-          "deploymentBucketName": "amplify-vadisabilityapp2-dev-2ae7a-deployment",
-          "s3Key": "amplify-builds/vadisabilityapp20bfae195-454367657a725544517a-build.zip",
-          "stripeSecretKey": "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"
+          "stripeSecretKeySsmName": "/amplify/va-disability-app2/dev/stripeSecretKey",
+          "userProfileTableName": "UserProfile-vapp1-dev",
+          "deploymentBucketName": "amplify-vapp1-dev-2d248-deployment",
+          "s3Key": "amplify-builds/vadisabilityapp20bfae195-596e795458462b4d3568-build.zip"
         }
       },
-      "auth": {
-        "vadisabilityapp20689be93": {}
-      },
       "api": {
-        "vadisabilityapp2": {},
+        "vapp1": {},
         "StripeApi": {}
+      },
+      "storage": {
+        "appfilestorage": {}
       }
     }
   }

@@ -44,27 +44,6 @@ export const schema = {
                     "type": "AWSDateTime",
                     "isRequired": true,
                     "attributes": []
-                },
-                "_version": {
-                    "name": "_version",
-                    "isArray": false,
-                    "type": "Int",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "_deleted": {
-                    "name": "_deleted",
-                    "isArray": false,
-                    "type": "Boolean",
-                    "isRequired": false,
-                    "attributes": []
-                },
-                "_lastChangedAt": {
-                    "name": "_lastChangedAt",
-                    "isArray": false,
-                    "type": "AWSTimestamp",
-                    "isRequired": true,
-                    "attributes": []
                 }
             },
             "syncable": true,
@@ -166,27 +145,6 @@ export const schema = {
                     "isArray": false,
                     "type": "String",
                     "isRequired": false,
-                    "attributes": []
-                },
-                "_version": {
-                    "name": "_version",
-                    "isArray": false,
-                    "type": "Int",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "_deleted": {
-                    "name": "_deleted",
-                    "isArray": false,
-                    "type": "Boolean",
-                    "isRequired": false,
-                    "attributes": []
-                },
-                "_lastChangedAt": {
-                    "name": "_lastChangedAt",
-                    "isArray": false,
-                    "type": "AWSTimestamp",
-                    "isRequired": true,
                     "attributes": []
                 }
             },
@@ -309,27 +267,6 @@ export const schema = {
                     "name": "updatedAt",
                     "isArray": false,
                     "type": "AWSDateTime",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "_version": {
-                    "name": "_version",
-                    "isArray": false,
-                    "type": "Int",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "_deleted": {
-                    "name": "_deleted",
-                    "isArray": false,
-                    "type": "Boolean",
-                    "isRequired": false,
-                    "attributes": []
-                },
-                "_lastChangedAt": {
-                    "name": "_lastChangedAt",
-                    "isArray": false,
-                    "type": "AWSTimestamp",
                     "isRequired": true,
                     "attributes": []
                 },
@@ -511,27 +448,6 @@ export const schema = {
                     "type": "String",
                     "isRequired": false,
                     "attributes": []
-                },
-                "_version": {
-                    "name": "_version",
-                    "isArray": false,
-                    "type": "Int",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "_deleted": {
-                    "name": "_deleted",
-                    "isArray": false,
-                    "type": "Boolean",
-                    "isRequired": false,
-                    "attributes": []
-                },
-                "_lastChangedAt": {
-                    "name": "_lastChangedAt",
-                    "isArray": false,
-                    "type": "AWSTimestamp",
-                    "isRequired": true,
-                    "attributes": []
                 }
             },
             "syncable": true,
@@ -606,27 +522,6 @@ export const schema = {
                     "type": "AWSDateTime",
                     "isRequired": true,
                     "attributes": []
-                },
-                "_version": {
-                    "name": "_version",
-                    "isArray": false,
-                    "type": "Int",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "_deleted": {
-                    "name": "_deleted",
-                    "isArray": false,
-                    "type": "Boolean",
-                    "isRequired": false,
-                    "attributes": []
-                },
-                "_lastChangedAt": {
-                    "name": "_lastChangedAt",
-                    "isArray": false,
-                    "type": "AWSTimestamp",
-                    "isRequired": true,
-                    "attributes": []
                 }
             },
             "syncable": true,
@@ -655,5 +550,5 @@ export const schema = {
     "enums": {},
     "nonModels": {},
     "codegenVersion": "3.4.4",
-    "version": "e156ab55c94348b9d870d55433f249f3"
+    "version": "4187f6c623de668df6eaecec92c27ea3"
 };

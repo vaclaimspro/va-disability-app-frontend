@@ -8,7 +8,9 @@
         "setting": "private",
         "auth": [
           "create",
-          "read"
+          "read",
+          "update",
+          "delete"
         ]
       }
     }

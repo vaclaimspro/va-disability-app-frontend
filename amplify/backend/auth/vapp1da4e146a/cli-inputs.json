@@ -1,10 +1,10 @@
 {
   "version": "1",
   "cognitoConfig": {
-    "identityPoolName": "vadisabilityapp20689be93_identitypool_0689be93",
-    "allowUnauthenticatedIdentities": false,
-    "resourceNameTruncated": "vadisa0689be93",
-    "userPoolName": "vadisabilityapp20689be93_userpool_0689be93",
+    "identityPoolName": "vapp1da4e146a_identitypool_da4e146a",
+    "allowUnauthenticatedIdentities": true,
+    "resourceNameTruncated": "vapp1da4e146a",
+    "userPoolName": "vapp1da4e146a_userpool_da4e146a",
     "autoVerifiedAttributes": [
       "email"
     ],
@@ -31,10 +31,10 @@
     "userpoolClientReadAttributes": [
       "email"
     ],
-    "userpoolClientLambdaRole": "vadisa0689be93_userpoolclient_lambda_role",
+    "userpoolClientLambdaRole": "vapp1dda4e146a_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": false,
-    "sharedId": "0689be93",
-    "resourceName": "vadisabilityapp20689be93",
+    "sharedId": "da4e146a",
+    "resourceName": "vapp1da4e146a",
     "authSelections": "identityPoolAndUserPool",
     "useDefault": "default",
     "usernameAttributes": [
@@ -43,6 +43,20 @@
     "userPoolGroupList": [],
     "serviceName": "Cognito",
     "usernameCaseSensitive": false,
-    "useEnabledMfas": true
+    "useEnabledMfas": true,
+    "authRoleArn": {
+      "Fn::GetAtt": [
+        "AuthRole",
+        "Arn"
+      ]
+    },
+    "unauthRoleArn": {
+      "Fn::GetAtt": [
+        "UnauthRole",
+        "Arn"
+      ]
+    },
+    "breakCircularDependency": true,
+    "dependsOn": []
   }
 }

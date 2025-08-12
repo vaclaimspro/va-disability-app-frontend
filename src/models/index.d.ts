@@ -16,9 +16,6 @@ type EagerTodo = {
   readonly owner?: string | null;
   readonly createdAt: string;
   readonly updatedAt: string;
-  readonly _version: number;
-  readonly _deleted?: boolean | null;
-  readonly _lastChangedAt: number;
 }
 
 type LazyTodo = {
@@ -31,9 +28,6 @@ type LazyTodo = {
   readonly owner?: string | null;
   readonly createdAt: string;
   readonly updatedAt: string;
-  readonly _version: number;
-  readonly _deleted?: boolean | null;
-  readonly _lastChangedAt: number;
 }
 
 export declare type Todo = LazyLoading extends LazyLoadingDisabled ? EagerTodo : LazyTodo
@@ -56,9 +50,6 @@ type EagerUserSubscription = {
   readonly createdAt: string;
   readonly updatedAt: string;
   readonly owner?: string | null;
-  readonly _version: number;
-  readonly _deleted?: boolean | null;
-  readonly _lastChangedAt: number;
 }
 
 type LazyUserSubscription = {
@@ -75,9 +66,6 @@ type LazyUserSubscription = {
   readonly createdAt: string;
   readonly updatedAt: string;
   readonly owner?: string | null;
-  readonly _version: number;
-  readonly _deleted?: boolean | null;
-  readonly _lastChangedAt: number;
 }
 
 export declare type UserSubscription = LazyLoading extends LazyLoadingDisabled ? EagerUserSubscription : LazyUserSubscription
@@ -103,9 +91,6 @@ type EagerUserProfile = {
   readonly owner?: string | null;
   readonly createdAt: string;
   readonly updatedAt: string;
-  readonly _version: number;
-  readonly _deleted?: boolean | null;
-  readonly _lastChangedAt: number;
   readonly disabilities?: string | null;
   readonly dependents?: string | null;
   readonly serviceDates?: string | null;
@@ -136,9 +121,6 @@ type LazyUserProfile = {
   readonly owner?: string | null;
   readonly createdAt: string;
   readonly updatedAt: string;
-  readonly _version: number;
-  readonly _deleted?: boolean | null;
-  readonly _lastChangedAt: number;
   readonly disabilities?: string | null;
   readonly dependents?: string | null;
   readonly serviceDates?: string | null;
@@ -172,9 +154,6 @@ type EagerDisabilityApplication = {
   readonly createdAt: string;
   readonly updatedAt: string;
   readonly owner?: string | null;
-  readonly _version: number;
-  readonly _deleted?: boolean | null;
-  readonly _lastChangedAt: number;
 }
 
 type LazyDisabilityApplication = {
@@ -191,9 +170,6 @@ type LazyDisabilityApplication = {
   readonly createdAt: string;
   readonly updatedAt: string;
   readonly owner?: string | null;
-  readonly _version: number;
-  readonly _deleted?: boolean | null;
-  readonly _lastChangedAt: number;
 }
 
 export declare type DisabilityApplication = LazyLoading extends LazyLoadingDisabled ? EagerDisabilityApplication : LazyDisabilityApplication
@@ -212,9 +188,6 @@ type EagerPublicFAQ = {
   readonly category?: string | null;
   readonly createdAt: string;
   readonly updatedAt: string;
-  readonly _version: number;
-  readonly _deleted?: boolean | null;
-  readonly _lastChangedAt: number;
 }
 
 type LazyPublicFAQ = {
@@ -227,9 +200,6 @@ type LazyPublicFAQ = {
   readonly category?: string | null;
   readonly createdAt: string;
   readonly updatedAt: string;
-  readonly _version: number;
-  readonly _deleted?: boolean | null;
-  readonly _lastChangedAt: number;
 }
 
 export declare type PublicFAQ = LazyLoading extends LazyLoadingDisabled ? EagerPublicFAQ : LazyPublicFAQ
