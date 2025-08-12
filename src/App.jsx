@@ -1,14 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
-import { getCurrentUser, signOut } from 'aws-amplify/auth';
+import { signIn, signOut, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
-import { get } from 'aws-amplify/api';
-import { uploadData, getUrl } from 'aws-amplify/storage'; // kept if you use it elsewhere
+import { DataStore, Predicates } from '@aws-amplify/datastore';
+import { get, post } from '@aws-amplify/api';
+import { uploadData, getUrl } from '@aws-amplify/storage';
 
-// ---------- REST API NAME ----------
-const API_NAME = 'StripeApi'; // change if aws-exports.js shows a different name
+import {
+    Todo,
+    UserSubscription,
+    UserProfile,
+    DisabilityApplication, // Add back if you have this in your schema and use it
+    PublicFAQ // Add back if you have this in your schema and use it
+} from './models/index.js'; // Ensure this path is correct
 
-// ---------- PAGES ----------
+// Import Pages
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import GetStartedPage from './pages/GetStartedPage';
@@ -28,8 +34,8 @@ import TermsOfUsePage from './pages/TermsOfUsePage';
 import AffiliatePage from './pages/AffiliatePage';
 import AffiliateDashboardPage from './pages/AffiliateDashboardPage';
 
-// ---------- ICONS ----------
-const Icon = ({ children, className = "w-5 h-5", viewBox = "0 0 24 24", strokeWidth = 1.5 }) => ( // FIX: Changed "0 0 24" to "0 0 24 24"
+// ICONS
+const Icon = ({ children, className = "w-5 h-5", viewBox = "0 0 24 24", strokeWidth = 1.5 }) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox={viewBox} stroke="currentColor" strokeWidth={strokeWidth} aria-hidden="true">
         {children}
     </svg>
@@ -50,266 +56,366 @@ const MenuIcon = (p) => <Icon {...p}><path strokeLinecap="round" strokeLinejoin=
 const SendIcon = (p) => <Icon {...p}><path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></Icon>;
 const GiftIcon = (p) => <Icon {...p}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4H5z"/></Icon>;
 
-// ---------- COMPONENT ----------
+// Define initial user data for when a new user signs up
+const initialUserData = {
+    username: '',
+    email: '',
+    fullName: '',
+    phoneNumber: '',
+    address: '',
+    membershipStatus: 'Free',
+    stripeCustomerId: null,
+    stripeSubscriptionId: null,
+};
+
 export default function App() {
-  const [page, setPage] = useState('landing');
-  const [currentUser, setCurrentUser] = useState(null);
-  const [userData, setUserData] = useState(null);        // profile hydrated from Cognito
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [theme, setTheme] = useState('light');
-  const [isStripeCustomerReady, setIsStripeCustomerReady] = useState(false);
-  const [isPro, setIsPro] = useState(false);             // gate Pro features (based on membershipStatus)
+    const [page, setPage] = useState('landing');
+    const [currentUser, setCurrentUser] = useState(null);
+    const [userData, setUserData] = useState(null);
+    const [isAuthLoading, setIsAuthLoading] = useState(true);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [theme, setTheme] = useState('light');
+    const [isStripeCustomerReady, setIsStripeCustomerReady] = useState(false);
+    const [isPro, setIsPro] = useState(false);
 
-  // theme toggle
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-  }, [theme]);
+    const profileSubscriptionRef = useRef(null);
+    const userSubscriptionSubscriptionRef = useRef(null);
 
-  // hydrate profile from Cognito only (no DataStore)
-  const hydrateFromCognito = (user) => {
-    if (!user) {
-      setUserData(null);
-      setIsPro(false);
-      return;
-    }
-    const profile = {
-      fullName: user.attributes?.name || 'Veteran User',
-      email: user.attributes?.email || '',
-      membershipStatus: 'Free', // flip to 'Pro' after webhook if you store it
-    };
-    setUserData(profile);
-    setIsPro(profile.membershipStatus === 'Pro');
-  };
+    useEffect(() => {
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+    }, [theme]);
 
-  // check Stripe customer status via your REST API
-  const checkStripeCustomerStatus = async (user) => {
-    if (!user?.userId) {
-      setIsStripeCustomerReady(false);
-      return;
-    }
-    try {
-      const rest = get({
-        apiName: 'StripeApi',
-        path: '/stripe/customer-status',
-        options: { queryParams: { userId: user.userId } },
-      });
-      const { body } = await rest.response;
-      const data = await body.json();
-      setIsStripeCustomerReady(Boolean(data?.stripeId));
-    } catch (err) {
-      console.warn('customer-status failed:', err);
-      setIsStripeCustomerReady(false);
-    }
-  };
+    useEffect(() => {
+        const authListener = async ({ payload: { event, data } }) => {
+            console.log("Auth Hub event:", event, data);
+            setIsAuthLoading(true);
 
-  // auth lifecycle
-  useEffect(() => {
-    const onAuth = async ({ payload: { event } }) => {
-      setIsAuthLoading(true);
-      try {
-        if (event === 'signedIn') {
-          const user = await getCurrentUser();
-          setCurrentUser(user);
-          hydrateFromCognito(user);
-          await checkStripeCustomerStatus(user);
-          if (['landing', 'login', 'signup', 'privacy', 'terms', 'affiliate'].includes(page)) {
-            setPage('calculator');
-          }
-        } else if (event === 'signedOut') {
-          setCurrentUser(null);
-          hydrateFromCognito(null);
-          setIsStripeCustomerReady(false);
-          setPage('landing');
+            if (event === 'signedIn') {
+                try {
+                    const user = await getCurrentUser();
+                    setCurrentUser(user);
+                    await fetchAndObserveUserProfile(user);
+                    await fetchAndObserveUserSubscription(user);
+                    await checkStripeCustomerStatus(user);
+
+                    if (['landing', 'login', 'signup', 'privacy', 'terms', 'affiliate'].includes(page)) {
+                        setPage('calculator');
+                    }
+                } catch (error) {
+                    console.error("Error during signedIn handling:", error);
+                    setCurrentUser(null);
+                    setUserData(null);
+                    setIsStripeCustomerReady(false);
+                    setIsPro(false);
+                    setPage('landing');
+                } finally {
+                    setIsAuthLoading(false);
+                }
+            } else if (event === 'signedOut') {
+                if (profileSubscriptionRef.current) profileSubscriptionRef.current.unsubscribe();
+                if (userSubscriptionSubscriptionRef.current) userSubscriptionSubscriptionRef.current.unsubscribe();
+
+                setCurrentUser(null);
+                setUserData(null);
+                setIsStripeCustomerReady(false);
+                setIsPro(false);
+                setPage('landing');
+                setIsAuthLoading(false);
+            } else {
+                setIsAuthLoading(false);
+            }
+        };
+
+        const hubUnsubscribe = Hub.listen('auth', authListener);
+
+        async function initialAuthCheck() {
+            try {
+                const user = await getCurrentUser();
+                setCurrentUser(user);
+                await fetchAndObserveUserProfile(user);
+                await fetchAndObserveUserSubscription(user);
+                await checkStripeCustomerStatus(user);
+
+                if (['landing', 'login', 'signup', 'privacy', 'terms', 'affiliate'].includes(page)) {
+                    setPage('calculator');
+                }
+            } catch (error) {
+                console.log("No current user found or error during initial check:", error);
+                setCurrentUser(null);
+                setUserData(null);
+                setIsStripeCustomerReady(false);
+                setIsPro(false);
+                setPage('landing');
+            } finally {
+                setIsAuthLoading(false);
+            }
         }
-      } finally {
-        setIsAuthLoading(false);
-      }
+
+        initialAuthCheck();
+
+        return () => {
+            hubUnsubscribe();
+            if (profileSubscriptionRef.current) profileSubscriptionRef.current.unsubscribe();
+            if (userSubscriptionSubscriptionRef.current) userSubscriptionSubscriptionRef.current.unsubscribe();
+        };
+    }, []);
+
+    const fetchAndObserveUserProfile = async (user) => {
+        if (!user || !user.userId) {
+            setUserData(null);
+            return;
+        }
+
+        try {
+            profileSubscriptionRef.current = DataStore.observeQuery(
+                UserProfile,
+                (p) => p.owner.eq(user.userId)
+            ).subscribe(snapshot => {
+                const { items: profiles, isSynced } = snapshot;
+                if (isSynced) {
+                    let profile = profiles[0];
+
+                    if (profile) {
+                        setUserData(profile);
+                    } else {
+                        DataStore.save(new UserProfile({
+                            id: user.userId,
+                            owner: user.userId,
+                            username: user.username || user.attributes?.preferred_username || user.attributes?.email,
+                            email: user.attributes?.email || '',
+                            fullName: user.attributes?.name || '',
+                            membershipStatus: initialUserData.membershipStatus,
+                            disabilities: [],
+                            dependents: { maritalStatus: 'single', childrenUnder18: 0, childrenOver18School: 0, dependentParents: 0, spouseAidAttendance: false },
+                            serviceDates: { eod: null, rad: null },
+                            strategyData: { potentialIncreases: [], potentialNewClaims: { presumptiveConditions: [], secondaryConditions: [] } },
+                            claimPackage: [],
+                            appointments: [],
+                            todos: [],
+                            symptomLogs: {},
+                            presumptiveSymptoms: {},
+                            savedDocuments: [],
+                            sessionInfo: {},
+                        })).then(newProfile => setUserData(newProfile))
+                           .catch(err => console.error("Error creating new UserProfile:", err));
+                    }
+                }
+            });
+        } catch (error) {
+            console.error("Error setting up UserProfile observation:", error);
+            setUserData(null);
+        }
     };
 
-    const unsub = Hub.listen('auth', onAuth);
-
-    // initial check
-    (async () => {
-      try {
-        const user = await getCurrentUser();
-        setCurrentUser(user);
-        hydrateFromCognito(user);
-        await checkStripeCustomerStatus(user);
-        if (['landing', 'login', 'signup', 'privacy', 'terms', 'affiliate'].includes(page)) {
-          setPage('calculator');
+    const fetchAndObserveUserSubscription = async (user) => {
+        if (!user || !user.userId) {
+            setIsPro(false);
+            return;
         }
-      } catch {
-        setCurrentUser(null);
-        hydrateFromCognito(null);
-        setPage('landing');
-      } finally {
-        setIsAuthLoading(false);
-      }
-    })();
 
-    return () => unsub();
-  }, []); // run once
+        try {
+            userSubscriptionSubscriptionRef.current = DataStore.observeQuery(
+                UserSubscription,
+                (s) => s.owner.eq(user.userId)
+            ).subscribe(snapshot => {
+                const { items: userSubscriptions, isSynced } = snapshot;
+                if (isSynced && userSubscriptions.length > 0) {
+                    const latestSubscription = userSubscriptions.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+                    const status = latestSubscription.status;
+                    setIsPro(['active', 'trialing'].includes(status));
 
-  const handleLogout = async () => {
-    try { await signOut(); } catch (e) { console.error('Sign out error', e); }
-  };
+                    if (userData && userData.membershipStatus !== status) {
+                        DataStore.save(UserProfile.copyOf(userData, updated => {
+                            updated.membershipStatus = status;
+                        })).catch(err => console.error("Error updating UserProfile membershipStatus:", err));
+                    }
 
-  const mainNavItems = [
-    { name: 'Get Started', icon: <RocketIcon />, id: 'getStarted' },
-    { name: 'Calculator', icon: <HomeIcon />, id: 'calculator' },
-    { name: 'Conditions Overview', icon: <DocumentTextIcon />, id: 'conditions' },
-    { name: 'Claim Builder', icon: <PlusCircleIcon />, id: 'claimBuilder' },
-    { name: 'Symptom Tracker', icon: <ActivityIcon />, id: 'symptomTracker' },
-    { name: 'Calendar & Tasks', icon: <CalendarIcon />, id: 'appointments' },
-    { name: 'C&P Exam Prep', icon: <ClipboardCheckIcon />, id: 'candpPrep' },
-    { name: 'Document Generation', icon: <FileTextIcon />, id: 'docTemplates' },
-    { name: 'How to File', icon: <SendIcon />, id: 'howToFile' },
-    { name: 'Affiliate Program', icon: <GiftIcon />, id: 'affiliateDashboard' },
-  ];
+                } else if (isSynced && userSubscriptions.length === 0) {
+                    setIsPro(false);
+                    if (userData && userData.membershipStatus !== 'Free') {
+                         DataStore.save(UserProfile.copyOf(userData, updated => {
+                            updated.membershipStatus = 'Free';
+                        })).catch(err => console.error("Error setting UserProfile to Free:", err));
+                    }
+                }
+            });
+        } catch (error) {
+            console.error("Error setting up UserSubscription observation:", error);
+            setIsPro(false);
+        }
+    };
 
-  const NavContent = () => (
-    <div className="flex flex-col h-full">
-      <div className="p-4 border-b dark:border-slate-700">
-        <img
-          src={theme === 'dark' ? "https://i.ibb.co/75002Dq/VAClaims-Logo-WHITE.png" : "https://i.ibb.co/YB8HrVsD/VALogo1.png"}
-          alt="VA Claims Pro Logo" className="h-auto w-full"
-        />
-      </div>
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-        {mainNavItems.map(item => (
-          <button key={item.id} onClick={() => { setPage(item.id); setIsMobileMenuOpen(false); }}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${page === item.id ? 'bg-red-600 text-white' : 'text-slate-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'}`}>
-            {item.icon}<span>{item.name}</span>
-          </button>
-        ))}
-      </nav>
-      <div className="p-4 border-t dark:border-slate-700 space-y-2">
-        <button onClick={() => { setPage('profile'); setIsMobileMenuOpen(false); }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${page === 'profile' ? 'bg-red-600 text-white' : 'text-slate-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'}`}>
-          <UserIcon className="w-5 h-5" /> My Profile
-        </button>
-        <button onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700">
-          <LogOutIcon className="w-5 h-5" /> Logout
-        </button>
-      </div>
-    </div>
-  );
+    const checkStripeCustomerStatus = async (user) => {
+        if (!user || !user.userId) {
+            setIsStripeCustomerReady(false);
+            return;
+        }
+        try {
+            const restOperation = get({
+                apiName: 'StripeApi', // <-- Use the API Gateway name 'StripeApi'
+                path: `/stripe/customer-status`,
+                options: { queryParams: { userId: user.userId } }
+            });
+            const { body } = await restOperation.response;
+            const data = await body.json();
+            setIsStripeCustomerReady(!!data?.stripeId);
 
-  const Sidebar = () => (
-    <aside className="hidden md:flex w-64 flex-col bg-white dark:bg-slate-900 border-r dark:border-slate-700">
-      <NavContent />
-    </aside>
-  );
+        } catch (error) {
+            console.warn("Could not check Stripe customer status:", error);
+            setIsStripeCustomerReady(false);
+        }
+    };
 
-  const MobileMenu = () => !isMobileMenuOpen ? null : (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden" onClick={() => setIsMobileMenuOpen(false)}>
-      <div className="fixed top-0 left-0 h-full w-64 bg-white dark:bg-slate-900 shadow-xl flex flex-col" onClick={e => e.stopPropagation()}>
-        <NavContent />
-      </div>
-    </div>
-  );
+    const handleLogout = async () => {
+        try {
+            await signOut();
+        } catch (error) {
+            console.error("Amplify sign out error", error);
+        }
+    };
 
-  const Header = () => {
-    const initials =
-      currentUser?.username?.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
-      || currentUser?.attributes?.email?.charAt(0).toUpperCase()
-      || '';
+    const mainNavItems = [
+        { name: 'Get Started', icon: <RocketIcon />, id: 'getStarted' },
+        { name: 'Calculator', icon: <HomeIcon />, id: 'calculator' },
+        { name: 'Conditions Overview', icon: <DocumentTextIcon />, id: 'conditions' },
+        { name: 'Claim Builder', icon: <PlusCircleIcon />, id: 'claimBuilder' },
+        { name: 'Symptom Tracker', icon: <ActivityIcon />, id: 'symptomTracker' },
+        { name: 'Calendar & Tasks', icon: <CalendarIcon />, id: 'appointments' },
+        { name: 'C&P Exam Prep', icon: <ClipboardCheckIcon />, id: 'candpPrep' },
+        { name: 'Document Generation', icon: <FileTextIcon />, id: 'docTemplates' },
+        { name: 'How to File', icon: <SendIcon />, id: 'howToFile' },
+        { name: 'Affiliate Program', icon: <GiftIcon />, id: 'affiliateDashboard' },
+    ];
+
+    const NavContent = () => (
+        <div className="flex flex-col h-full">
+            <div className="p-4 border-b dark:border-slate-700">
+                <img src={theme === 'dark' ? "https://i.ibb.co/75002Dq/VAClaims-Logo-WHITE.png" : "https://i.ibb.co/YB8HrVsD/VALogo1.png"} alt="VA Claims Pro Logo" className="h-auto w-full" />
+            </div>
+            <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                {mainNavItems.map(item => (
+                    <button key={item.id} onClick={() => { setPage(item.id); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${page === item.id ? 'bg-red-600 text-white' : 'text-slate-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'}`}>
+                       {item.icon}<span>{item.name}</span>
+                    </button>
+                ))}
+            </nav>
+            <div className="p-4 border-t dark:border-slate-700 space-y-2">
+                <button onClick={() => { setPage('profile'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${page === 'profile' ? 'bg-red-600 text-white' : 'text-slate-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'}`}>
+                    <UserIcon className="w-5 h-5" /> My Profile
+                </button>
+                <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700">
+                    <LogOutIcon className="w-5 h-5" /> Logout
+                </button>
+            </div>
+        </div>
+    );
+
+    const Sidebar = () => (
+        <aside className="hidden md:flex w-64 flex-col bg-white dark:bg-slate-900 border-r dark:border-slate-700">
+            <NavContent />
+        </aside>
+    );
+
+    const MobileMenu = () => {
+        if (!isMobileMenuOpen) return null;
+        return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden" onClick={() => setIsMobileMenuOpen(false)}>
+                <div className="fixed top-0 left-0 h-full w-64 bg-white dark:bg-slate-900 shadow-xl flex flex-col" onClick={e => e.stopPropagation()}>
+                    <NavContent />
+                </div>
+            </div>
+        );
+    };
+
+    const Header = () => {
+        const initials = currentUser?.username?.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() || currentUser?.attributes?.email?.charAt(0).toUpperCase() || '';
+        return (
+             <header className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border-b dark:border-slate-700">
+                <div className="flex items-center gap-4">
+                    <button onClick={() => setIsMobileMenuOpen(true)} className="md:hidden p-2">
+                        <MenuIcon className="w-6 h-6 text-gray-600 dark:text-gray-300"/>
+                    </button>
+                    <div className="md:hidden">
+                         <img src={theme === 'dark' ? "https://i.ibb.co/75002Dq/VAClaims-Logo-WHITE.png" : "https://i.ibb.co/YB8HrVsD/VALogo1.png"} alt="VA Claims Pro Logo" className="h-8 w-auto" />
+                    </div>
+                </div>
+                <div className="flex items-center gap-4">
+                    <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300">
+                        {theme === 'light' ? <MoonIcon/> : <SunIcon/>}
+                    </button>
+                    <div className="w-9 h-9 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-sm">
+                        {initials}
+                    </div>
+                </div>
+            </header>
+        );
+    };
+
+    const ProGate = ({ children, featureName = 'This feature' }) => {
+        if (isPro) return children;
+        return (
+            <div className="max-w-2xl mx-auto text-center p-8 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                <h3 className="text-lg font-semibold mb-2">{featureName} is for Pro members</h3>
+                <p className="text-slate-600 dark:text-slate-300 mb-6">
+                    Upgrade to unlock this tool instantly. Your access updates in real time after checkout.
+                </p>
+                <button
+                    onClick={() => setPage('membership')}
+                    className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+                >
+                    Upgrade to Pro
+                </button>
+            </div>
+        );
+    };
+
+    const renderPage = () => {
+        if (!userData) {
+             return <div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div></div>;
+        }
+
+        switch (page) {
+            case 'getStarted': return <GetStartedPage setPage={setPage} />;
+            case 'calculator': return <CalculatorPage userData={userData} setPage={setPage} />;
+            case 'conditions': return <ConditionsOverviewPage userData={userData} setPage={setPage} />;
+            case 'claimBuilder': return <ClaimBuilderPage userData={userData} setPage={setPage} />;
+            case 'symptomTracker': return <SymptomTrackerPage userData={userData} />;
+            case 'appointments': return <CalendarAndTasksPage userData={userData} setPage={setPage} />;
+            case 'candpPrep': return <ProGate featureName="C&P Exam Prep"><CandPPrepPage userData={userData} setPage={setPage} /></ProGate>;
+            case 'docTemplates': return <ProGate featureName="Document Generation"><DocumentTemplatesPage userData={userData} setPage={setPage} /></ProGate>;
+            case 'howToFile': return <HowToFilePage setPage={setPage} />;
+            case 'profile': return <UserProfilePage user={currentUser} userData={userData} setPage={setPage} />;
+            case 'membership': return <MembershipPage userData={userData} setPage={setPage} isStripeCustomerReady={isStripeCustomerReady} />;
+            case 'affiliateDashboard': return <AffiliateDashboardPage user={currentUser} />;
+            default: return <GetStartedPage setPage={setPage} />;
+        }
+    };
+
+    if (isAuthLoading) {
+        return <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-slate-900"><div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600"></div></div>;
+    }
+
+    if (!currentUser) {
+        switch (page) {
+            case 'signup': return <SignUpPage setPage={setPage} />;
+            case 'login': return <LoginPage setPage={setPage} />;
+            case 'privacy': return <PrivacyPolicyPage setPage={setPage} />;
+            case 'terms': return <TermsOfUsePage setPage={setPage} />;
+            case 'affiliate': return <AffiliatePage setPage={setPage} />;
+            default: return <LandingPage setPage={setPage} />;
+        }
+    }
+
     return (
-      <header className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border-b dark:border-slate-700">
-        <div className="flex items-center gap-4">
-          <button onClick={() => setIsMobileMenuOpen(true)} className="md:hidden p-2">
-            <MenuIcon className="w-6 h-6 text-gray-600 dark:text-gray-300"/>
-          </button>
-          <div className="md:hidden">
-            <img
-              src={theme === 'dark' ? "https://i.ibb.co/75002Dq/VAClaims-Logo-WHITE.png" : "https://i.ibb.co/YB8HrVsD/VALogo1.png"}
-              alt="VA Claims Pro Logo" className="h-8 w-auto"
-            />
-          </div>
+        <div className="flex h-screen bg-gray-50 dark:bg-slate-800 font-sans">
+            <Sidebar />
+            <MobileMenu />
+            <div className="flex-1 flex flex-col overflow-hidden">
+                <Header />
+                <main className="flex-1 p-4 md:p-6 overflow-y-auto">
+                    {renderPage()}
+                </main>
+            </div>
         </div>
-        <div className="flex items-center gap-4">
-          <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300">
-            {theme === 'light' ? <MoonIcon/> : <SunIcon/>}
-          </button>
-          <div className="w-9 h-9 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-sm">
-            {initials}
-          </div>
-        </div>
-      </header>
     );
-  };
-
-  const ProGate = ({ children, featureName = 'This feature' }) =>
-    isPro ? children : (
-      <div className="max-w-2xl mx-auto text-center p-8 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
-        <h3 className="text-lg font-semibold mb-2">{featureName} is for Pro members</h3>
-        <p className="text-slate-600 dark:text-slate-300 mb-6">
-          Upgrade to unlock this tool instantly. Your access updates in real time after checkout.
-        </p>
-        <button onClick={() => setPage('membership')}
-                className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition">
-          Upgrade to Pro
-        </button>
-      </div>
-    );
-
-  const renderPage = () => {
-    if (!userData) {
-      return (
-        <div className="flex items-center justify-center h-full">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
-        </div>
-      );
-    }
-    switch (page) {
-      case 'getStarted': return <GetStartedPage setPage={setPage} />;
-      case 'calculator': return <CalculatorPage userData={userData} setPage={setPage} />;
-      case 'conditions': return <ConditionsOverviewPage userData={userData} setPage={setPage} />;
-      case 'claimBuilder': return <ClaimBuilderPage userData={userData} setPage={setPage} />;
-      case 'symptomTracker': return <SymptomTrackerPage userData={userData} />;
-      case 'appointments': return <CalendarAndTasksPage userData={userData} setPage={setPage} />;
-      case 'candpPrep': return <ProGate featureName="C&P Exam Prep"><CandPPrepPage userData={userData} setPage={setPage} /></ProGate>;
-      case 'docTemplates': return <ProGate featureName="Document Generation"><DocumentTemplatesPage userData={userData} setPage={setPage} /></ProGate>;
-      case 'howToFile': return <HowToFilePage setPage={setPage} />;
-      case 'profile': return <UserProfilePage user={currentUser} userData={userData} setPage={setPage} />;
-      case 'membership': return <MembershipPage userData={userData} setPage={setPage} isStripeCustomerReady={isStripeCustomerReady} />;
-      case 'affiliateDashboard': return <AffiliateDashboardPage user={currentUser} />;
-      default: return <GetStartedPage setPage={setPage} />;
-    }
-  };
-
-  if (isAuthLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-slate-900">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600"></div>
-      </div>
-    );
-  }
-
-  if (!currentUser) {
-    switch (page) {
-      case 'signup': return <SignUpPage setPage={setPage} />;
-      case 'login': return <LoginPage setPage={setPage} />;
-      case 'privacy': return <PrivacyPolicyPage setPage={setPage} />;
-      case 'terms': return <TermsOfUsePage setPage={setPage} />;
-      case 'affiliate': return <AffiliatePage setPage={setPage} />;
-      default: return <LandingPage setPage={setPage} />;
-    }
-  }
-
-  return (
-    <div className="flex h-screen bg-gray-50 dark:bg-slate-800 font-sans">
-      <aside className="hidden md:flex w-64 flex-col bg-white dark:bg-slate-900 border-r dark:border-slate-700">
-        <NavContent />
-      </aside>
-      <div className="md:hidden">{/* mobile drawer is created on demand */}</div>
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
-        <main className="flex-1 p-4 md:p-6 overflow-y-auto">{renderPage()}</main>
-      </div>
-    </div>
-  );
 }
