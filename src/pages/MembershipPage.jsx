@@ -4,7 +4,7 @@ import { DataStore } from '@aws-amplify/datastore';
 import { post } from '@aws-amplify/api';
 import { UserSubscription, UserProfile } from '../models/index.js';
 import { Card, Button } from '../components';
-import { CheckCircleIcon } from '../icons';
+import { CheckCircleIcon, ExternalLinkIcon } from '../icons'; // Added ExternalLinkIcon
 
 const API_NAME = 'StripeApi'; // This must match the name of your REST API Gateway
 
@@ -182,13 +182,9 @@ export default function MembershipPage({ userData, setPage, isStripeCustomerRead
                             <Button
                                 onClick={subscribeAndPay}
                                 className="w-full mb-4"
-                                disabled={isLoading || !isStripeCustomerReady}
+                                disabled={isLoading}
                             >
-                                {isLoading
-                                    ? 'Processing...'
-                                    : !isStripeCustomerReady
-                                        ? 'Preparing...'
-                                        : 'Subscribe & Pay'}
+                                {isLoading ? 'Processing...' : 'Subscribe & Pay'}
                             </Button>
                         </>
                     )}
