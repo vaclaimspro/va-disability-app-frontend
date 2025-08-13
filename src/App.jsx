@@ -6,7 +6,7 @@ import { get } from 'aws-amplify/api';
 import { uploadData, getUrl } from 'aws-amplify/storage'; // kept if you use it elsewhere
 
 // ---------- REST API NAME ----------
-const API_NAME = 'StripeApi'; // change if aws-exports.js shows a different name
+const API_NAME = import.meta.env.VITE_STRIPE_API_NAME; // FIX: Use build-time environment variable
 
 // ---------- PAGES ----------
 import LoginPage from './pages/LoginPage';
