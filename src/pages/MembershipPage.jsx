@@ -4,9 +4,9 @@ import { DataStore } from '@aws-amplify/datastore';
 import { post } from '@aws-amplify/api';
 import { UserSubscription, UserProfile } from '../models/index.js';
 import { Card, Button } from '../components';
-import { CheckCircleIcon, ExternalLinkIcon } from '../icons'; // Added ExternalLinkIcon
+import { CheckCircleIcon, ExternalLinkIcon } from '../icons';
 
-const API_NAME = 'StripeApi'; // This must match the name of your REST API Gateway
+const API_NAME = import.meta.env.VITE_STRIPE_API_NAME; // FIX: Use build-time environment variable
 
 export default function MembershipPage({ userData, setPage, isStripeCustomerReady }) {
     const [isLoading, setIsLoading] = useState(false);
@@ -184,7 +184,9 @@ export default function MembershipPage({ userData, setPage, isStripeCustomerRead
                                 className="w-full mb-4"
                                 disabled={isLoading}
                             >
-                                {isLoading ? 'Processing...' : 'Subscribe & Pay'}
+                                {isLoading
+                                    ? 'Processing...'
+                                    : 'Subscribe & Pay'}
                             </Button>
                         </>
                     )}
