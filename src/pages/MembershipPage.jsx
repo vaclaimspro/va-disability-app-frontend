@@ -6,7 +6,7 @@ import { UserSubscription, UserProfile } from '../models/index.js';
 import { Card, Button } from '../components';
 import { CheckCircleIcon, ExternalLinkIcon } from '../icons';
 
-const API_NAME = 'apistripeapi';
+const API_NAME = 'apiStripeApi';
 
 export default function MembershipPage({ userData, setPage, isStripeCustomerReady }) {
     const [isLoading, setIsLoading] = useState(false);
