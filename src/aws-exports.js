@@ -32,7 +32,7 @@ const awsmobile = {
     "aws_appsync_apiKey": "da2-n5xxmg4f5bhpjljzxlvqyfrad4",
     "aws_cloud_logic_custom": [
         {
-            "name": "apistripeapi",
+            "name": "StripeApi",
             "endpoint": "https://nzwfjpy3o2.execute-api.us-east-1.amazonaws.com/dev",
             "region": "us-east-1"
         }
