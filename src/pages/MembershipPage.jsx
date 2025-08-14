@@ -4,7 +4,7 @@ import { API } from 'aws-amplify'; // <-- use API from Amplify v6
 import { Card, Button } from '../components';
 import { CheckCircleIcon, ExternalLinkIcon } from '../icons';
 
-const API_NAME = 'StripeApi';
+const API_NAME = 'apistripeapi';
 
 export default function MembershipPage({ userData, setPage, isStripeCustomerReady }) {
     const [isLoading, setIsLoading] = useState(false);
