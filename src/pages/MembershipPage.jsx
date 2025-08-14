@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getCurrentUser } from 'aws-amplify/auth';
-import { DataStore } from '@aws-amplify/datastore';
-import { post } from '@aws-amplify/api';
-import { UserSubscription, UserProfile } from '../models/index.js';
+import { API } from 'aws-amplify'; // <-- use API from Amplify v6
 import { Card, Button } from '../components';
 import { CheckCircleIcon, ExternalLinkIcon } from '../icons';
 
@@ -15,11 +13,7 @@ export default function MembershipPage({ userData, setPage, isStripeCustomerRead
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (userData && userData.membershipStatus === 'Pro') {
-            setIsPro(true);
-        } else {
-            setIsPro(false);
-        }
+        setIsPro(userData?.membershipStatus === 'Pro');
         setIsStatusLoading(false);
     }, [userData]);
 
@@ -36,23 +30,17 @@ export default function MembershipPage({ userData, setPage, isStripeCustomerRead
         setError(null);
         try {
             const user = await getCurrentUser();
-            if (!user) {
-                throw new Error('User not authenticated.');
-            }
-            const restOperation = post({
-                apiName: API_NAME,
-                path: '/stripe/create-checkout-session',
-                options: {
-                    body: {
-                        userId: user.userId,
-                        priceId: "price_1Rt7qcGx5e4THAKThtB0CObv", // IMPORTANT: This is a placeholder. Use your actual Stripe Price ID.
-                        successUrl: window.location.origin + '?upgrade=success',
-                        cancelUrl: window.location.origin + '?upgrade=cancelled',
-                    },
+            if (!user) throw new Error('User not authenticated.');
+
+            const result = await API.post(API_NAME, '/stripe/create-checkout-session', {
+                body: {
+                    userId: user.userId,
+                    priceId: "price_1Rt7qcGx5e4THAKThtB0CObv", // Replace with your real Stripe Price ID
+                    successUrl: window.location.origin + '?upgrade=success',
+                    cancelUrl: window.location.origin + '?upgrade=cancelled',
                 },
             });
-            const { body } = await restOperation.response;
-            const result = await body.json();
+
             if (result?.url) {
                 window.location.assign(result.url);
             } else {
@@ -71,22 +59,17 @@ export default function MembershipPage({ userData, setPage, isStripeCustomerRead
         setError(null);
         try {
             const user = await getCurrentUser();
-            if (!user) {
-                throw new Error('User not authenticated.');
-            }
-            const restOperation = post({
-                apiName: API_NAME,
-                path: '/stripe/create-billing-portal-link',
-                options: {
-                    body: { userId: user.userId },
-                },
+            if (!user) throw new Error('User not authenticated.');
+
+            const result = await API.post(API_NAME, '/stripe/create-billing-portal-link', {
+                body: { userId: user.userId },
             });
-            const { body } = await restOperation.response;
-            const result = await body.json();
-            if (!result?.url) {
+
+            if (result?.url) {
+                window.location.assign(result.url);
+            } else {
                 throw new Error('No portal URL returned from backend.');
             }
-            window.location.assign(result.url);
         } catch (err) {
             console.error('Billing portal error:', err);
             setError('Unable to open billing portal: ' + (err.message || 'Unknown error'));
@@ -98,11 +81,11 @@ export default function MembershipPage({ userData, setPage, isStripeCustomerRead
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const upgradeStatus = urlParams.get('upgrade');
-        if (upgradeStatus === 'success') {
+        if (upgradeStatus) {
             window.history.replaceState({}, document.title, window.location.pathname);
-        } else if (upgradeStatus === 'cancelled') {
-            window.history.replaceState({}, document.title, window.location.pathname);
-            setError('Checkout was cancelled. You can try again anytime.');
+            if (upgradeStatus === 'cancelled') {
+                setError('Checkout was cancelled. You can try again anytime.');
+            }
         }
     }, []);
 
@@ -182,11 +165,13 @@ export default function MembershipPage({ userData, setPage, isStripeCustomerRead
                             <Button
                                 onClick={subscribeAndPay}
                                 className="w-full mb-4"
-                                disabled={isLoading}
+                                disabled={isLoading || !isStripeCustomerReady}
                             >
                                 {isLoading
                                     ? 'Processing...'
-                                    : 'Subscribe & Pay'}
+                                    : !isStripeCustomerReady
+                                        ? 'Preparing...'
+                                        : 'Subscribe & Pay'}
                             </Button>
                         </>
                     )}
