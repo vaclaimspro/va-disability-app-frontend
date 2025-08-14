@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "start": "vite",
     "amplify-model-codegen": "amplify codegen models",
-    "amplify-env-pull": "amplify pull --force --appId <YOUR_APP_ID> --envName dev"
+    "amplify-env-pull": "amplify pull --force --appId d1lc2tgcgxpuf5 --envName dev"
   },
   "dependencies": {
     "@aws-amplify/api": "^6.3.17",
