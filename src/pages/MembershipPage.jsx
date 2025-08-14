@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getCurrentUser } from 'aws-amplify/auth';
-import { API } from '@aws-amplify/api'; // FIX: use API from Amplify v6
+import { API } from 'aws-amplify'; // FIX: use API from Amplify v6
 import { Card, Button } from '../components';
 import { CheckCircleIcon, ExternalLinkIcon } from '../icons';
 
